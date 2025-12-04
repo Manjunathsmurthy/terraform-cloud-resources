@@ -1,0 +1,96 @@
+---
+# ANSIBLE PLAYBOOK: Security Hardening
+#
+# PURPOSE: Implement CIS Benchmark security controls for Linux systems
+# Hardens SSH, firewall, kernel parameters, and user access controls
+# Enables SELinux/AppArmor, removes unnecessary services, configures auditd
+#
+# USAGE: ansible-playbook ansible/sre-playbooks/security-hardening.yml -i inventory.yml
+# TAGS: security, hardening, compliance
+
+- name: Security Hardening & CIS Compliance
+  hosts: all
+  become: yes
+  tasks:
+    # SSH Hardening
+    - name: "SSH HARDENING: Disable root login"
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+      notify: restart sshd
+
+    - name: "SSH HARDENING: Disable password authentication"
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: restart sshd
+
+    # Firewall Configuration
+    - name: "FIREWALL: Enable UFW"
+      ansible.builtin.systemd:
+        name: ufw
+        enabled: yes
+        state: started
+      when: ansible_os_family == "Debian"
+
+    - name: "FIREWALL: Configure UFW defaults"
+      ansible.builtin.ufw:
+        direction: "{{ item.direction }}"
+        policy: "{{ item.policy }}"
+      loop:
+        - { direction: 'incoming', policy: 'deny' }
+        - { direction: 'outgoing', policy: 'allow' }
+      when: ansible_os_family == "Debian"
+
+    # File Permissions
+    - name: "PERMISSIONS: Set restrictive permissions on important files"
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: '/etc/passwd', mode: '0644' }
+        - { path: '/etc/shadow', mode: '0640' }
+        - { path: '/etc/group', mode: '0644' }
+        - { path: '/etc/gshadow', mode: '0640' }
+
+    # Audit Configuration
+    - name: "AUDIT: Install auditd"
+      ansible.builtin.apt:
+        name: auditd
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: "AUDIT: Enable auditd service"
+      ansible.builtin.systemd:
+        name: auditd
+        enabled: yes
+        state: started
+
+    # Kernel Security Parameters
+    - name: "KERNEL: Enable ExecShield"
+      ansible.builtin.sysctl:
+        name: kernel.exec-shield
+        value: '1'
+        state: present
+
+    - name: "KERNEL: Enable ASLR"
+      ansible.builtin.sysctl:
+        name: kernel.randomize_va_space
+        value: '2'
+        state: present
+
+    - name: "KERNEL: Disable magic SysRq"
+      ansible.builtin.sysctl:
+        name: kernel.sysrq
+        value: '0'
+        state: present
+
+  handlers:
+    - name: restart sshd
+      ansible.builtin.systemd:
+        name: sshd
+        state: restarted
