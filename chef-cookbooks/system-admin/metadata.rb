@@ -1,0 +1,16 @@
+name 'system-admin'
+maintainer 'SRE Team'
+maintainer_email 'sre@example.com'
+license 'Apache-2.0'
+description 'System administration cookbook for SRE and Cloud Architects'
+version '1.0.0'
+chef_version '>= 14.0'
+
+supports 'ubuntu', '>= 18.04'
+supports 'ubuntu', '>= 20.04'
+supports 'centos', '>= 7.0'
+supports 'centos', '>= 8.0'
+supports 'redhat', '>= 7.0'
+supports 'debian', '>= 9.0'
+
+gem 'chef-vault'
