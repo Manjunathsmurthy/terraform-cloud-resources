@@ -1,0 +1,46 @@
+# Cloud Infrastructure Penetration Testing Suite Requirements
+# AWS, Azure, GCP CLI and SDK dependencies
+
+# Core AWS SDK
+boto3>=1.26.0
+botocore>=1.29.0
+
+# Azure SDK
+azure-identity>=1.13.0
+azure-mgmt-storage>=21.0.0
+azure-mgmt-security>=0.7.0
+azure-common>=1.1.28
+
+# Google Cloud SDK
+google-cloud-storage>=2.10.0
+google-cloud-iam>=2.13.0
+google-auth>=2.25.0
+
+# Utilities and Logging
+click>=8.1.0
+python-dotenv>=1.0.0
+colorama>=0.4.6
+tabulate>=0.9.0
+requests>=2.31.0
+
+# JSON and Data Processing
+jsonschema>=4.19.0
+pyyaml>=6.0
+
+# Logging and Monitoring
+python-logging-loki>=0.3.2
+
+# Testing (optional but recommended)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.1
+
+# Code Quality
+black>=23.9.0
+flake8>=6.0.0
+pylint>=2.17.0
+isort>=5.12.0
+
+# Documentation
+sphinx>=7.2.0
+sphinx-rtd-theme>=1.3.0
